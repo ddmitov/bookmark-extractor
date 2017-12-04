@@ -1,6 +1,7 @@
 package main.java;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,10 +34,7 @@ public class BookmarkExtractor {
         try {
             // Command-line arguments:
             if (args.length == 1 && args[0].matches("--help")) {
-                System.out.println("");
-                System.out.println("Bookmark Extractor version 0.1");
-                System.out.println("Selective bookmark extractor and formatter.");
-                System.out.println("");
+                printHeader();
                 System.out.println("Arguments:");
                 System.out.println("--help                this help");
                 System.out.println("--root=<node-name>    root node - mandatory argument");
@@ -58,6 +56,7 @@ public class BookmarkExtractor {
             }
 
             if (targetRootName.length() == 0) {
+                printHeader();
                 System.out.println("No root element is specified!");
                 System.exit(1);
             }
@@ -69,6 +68,13 @@ public class BookmarkExtractor {
 
             bookmarksPath = homeDirectory + fileSeparator + linuxConfigDir
                     + fileSeparator + "chromium/Default/Bookmarks";
+
+            File bookmarksFile = new File(bookmarksPath);
+            if (!bookmarksFile.exists()) {
+                printHeader();
+                System.out.println("Bookmarks file is not found!");
+                System.exit(1);
+            }
 
             // Output files:
             final String currentDirectory = System.getProperty("user.dir");
@@ -257,5 +263,12 @@ public class BookmarkExtractor {
         }
         outputWriter.close();
         errorWriter.close();
+    }
+
+    public static void printHeader() {
+        System.out.println("");
+        System.out.println("Bookmark Extractor version 0.1");
+        System.out.println("Selective bookmark extractor and formatter.");
+        System.out.println("");
     }
 }
