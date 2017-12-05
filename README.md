@@ -5,10 +5,10 @@ Bookmark Extractor
 Bookmark Extractor is a selective bookmark extractor and formatter.  
 Chromium on Linux as an input source and Markdown as an output format are currently supported.  
 Support for other operating systems, browsers and output formats may be added in the future.  
-It is still in an early stage of development.  
+Bookmark Extractor is still in an early stage of development.  
 
 ## Dependency
-* ``Google Gson``  
+* [Google Gson](https://github.com/google/gson)  
 
 ## Usage
 ```
