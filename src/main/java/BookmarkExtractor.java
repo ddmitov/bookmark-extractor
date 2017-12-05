@@ -24,11 +24,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class BookmarkExtractor {
+    public static String targetRootName = "";
+    public static boolean statusCheck = true;
+
     public static String bookmarksPath;
     public static String outputPath;
     public static String errorsPath;
-    public static String targetRootName = "";
-    public static boolean statusCheck = true;
+
+    public static PrintWriter outputWriter;
+    public static PrintWriter errorWriter;
 
     public static void main(String[] args) {
         try {
@@ -79,21 +83,17 @@ public class BookmarkExtractor {
             // Output files:
             final String currentDirectory = System.getProperty("user.dir");
             outputPath = currentDirectory + fileSeparator + "bookmarks.md";
-            errorsPath = currentDirectory + fileSeparator + "bookmark-errors.md";
+            errorsPath = currentDirectory + fileSeparator
+                    + "bookmarks-with-errors.md";
 
-            PrintWriter outputWriter = new PrintWriter(
-                    new FileWriter(outputPath));
-            PrintWriter errorWriter = new PrintWriter(
-                    new FileWriter(errorsPath));
+            outputWriter = new PrintWriter(new FileWriter(outputPath));
+            errorWriter = new PrintWriter(new FileWriter(errorsPath));
 
             outputWriter.println("## " + targetRootName);
             outputWriter.flush();
 
             errorWriter.println("## " + targetRootName);
             errorWriter.flush();
-
-            outputWriter.close();
-            errorWriter.close();
 
             // Bookmarks JSON parsing:
             BufferedReader buffer = new BufferedReader(new FileReader(
@@ -102,9 +102,8 @@ public class BookmarkExtractor {
             Gson gson = new Gson();
             JsonObject bookmarks = gson.fromJson(buffer, JsonObject.class);
 
-            JsonObject root = bookmarks.getAsJsonObject("roots");
-            JsonObject other = root.getAsJsonObject("other");
-            JsonArray roots = other.getAsJsonArray("children");
+            JsonArray roots = bookmarks.getAsJsonObject("roots")
+                    .getAsJsonObject("other").getAsJsonArray("children");
 
             for (JsonElement child : roots) {
                 JsonObject childObject = child.getAsJsonObject();
@@ -146,11 +145,6 @@ public class BookmarkExtractor {
 
     public static void parseElement(JsonElement child, int elementLevel)
             throws IOException {
-        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputPath,
-                true));
-        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorsPath,
-                true));
-
         JsonObject targetRoot = child.getAsJsonObject();
         JsonArray children = targetRoot.getAsJsonArray("children");
 
@@ -235,7 +229,6 @@ public class BookmarkExtractor {
                             || responseCode == 302 || responseCode == 406) {
                         System.out.println(space + name + " :: " + urlString
                                 + " :: OK");
-
                         outputWriter.println(space + "* [" + name + "]("
                                 + urlString + ")  ");
                         outputWriter.flush();
@@ -261,8 +254,6 @@ public class BookmarkExtractor {
                 }
             }
         }
-        outputWriter.close();
-        errorWriter.close();
     }
 
     public static void printHeader() {
