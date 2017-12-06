@@ -15,6 +15,9 @@ Bookmark Extractor is still in an early stage of development.
 Bookmark Extractor version 0.1  
 Selective bookmark extractor and formatter.  
 
+java -jar bookmark-extractor.jar --root=root_folder  
+java -jar bookmark-extractor.jar --root="root folder with spaces"  
+
 Arguments:  
 --help                this help  
 --root=<node-name>    root node - mandatory argument  

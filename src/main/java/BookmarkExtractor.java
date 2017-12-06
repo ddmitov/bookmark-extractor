@@ -39,6 +39,9 @@ public class BookmarkExtractor {
             // Command-line arguments:
             if (args.length == 1 && args[0].matches("--help")) {
                 printHeader();
+                System.out.println("java -jar bookmark-extractor.jar --root=root_folder");
+                System.out.println("java -jar bookmark-extractor.jar --root=\"root folder with spaces\"");
+                System.out.println("");
                 System.out.println("Arguments:");
                 System.out.println("--help                this help");
                 System.out.println("--root=<node-name>    root node - mandatory argument");
