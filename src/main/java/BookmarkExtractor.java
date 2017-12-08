@@ -15,6 +15,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.omg.CORBA.portable.UnknownException;
 
@@ -148,16 +150,18 @@ public class BookmarkExtractor {
 
     public static void parseElement(JsonElement child, int elementLevel)
             throws IOException {
-        JsonObject targetRoot = child.getAsJsonObject();
-        JsonArray children = targetRoot.getAsJsonArray("children");
+        JsonArray children = child.getAsJsonObject().getAsJsonArray("children");
+
+        Map<String, String> unsortedMap = new TreeMap<String, String>();
+        Map<String, String> sortedMap = new TreeMap<String, String>();
+
+        String space = String.join("", Collections.nCopies(elementLevel, "  "));
 
         for (JsonElement childElement : children) {
             JsonObject targetChildObject = childElement.getAsJsonObject();
             String type = targetChildObject.get("type").getAsString();
             String name = targetChildObject.get("name").getAsString();
-
-            String space = String
-                    .join("", Collections.nCopies(elementLevel, "  "));
+            String address = "";
 
             if (type.equals("folder")) {
                 System.out.println(space + name);
@@ -172,89 +176,95 @@ public class BookmarkExtractor {
             }
 
             if (type.equals("url")) {
-                String urlString = targetChildObject.get("url").getAsString();
+                address = targetChildObject.get("url").getAsString();
+                unsortedMap.put(name, address);
+            }
+        }
 
-                if (statusCheck == true) {
-                    URL url = new URL(urlString);
-                    HttpURLConnection httpConnection = (HttpURLConnection) url
-                            .openConnection();
-                    httpConnection.setRequestMethod("HEAD");
-                    httpConnection.setRequestProperty("User-Agent",
-                            "Mozilla/5.0 Firefox/3.5.2");
-                    httpConnection.setConnectTimeout(30000);
-                    httpConnection.setReadTimeout(30000);
+        sortedMap.putAll(unsortedMap);
 
-                    int responseCode = 0;
-                    try {
-                        InputStream errors = httpConnection.getErrorStream();
-                        if (errors == null) {
-                            responseCode = httpConnection.getResponseCode();
-                        }
-                    } catch (ConnectException connectionException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: connection exception");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: connection exception  ");
-                        errorWriter.flush();
-                    } catch (SocketException timeoutException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: socket exception");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: socket exception  ");
-                        errorWriter.flush();
-                    } catch (SocketTimeoutException timeoutException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: timed out");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: timed out  ");
-                        errorWriter.flush();
-                    } catch (ProtocolException protocolException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: protocol exception");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: protocol exception  ");
-                        errorWriter.flush();
-                    } catch (UnknownHostException unknownHostException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: unknown host exception");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: unknown host exception  ");
-                        errorWriter.flush();
-                    } catch (UnknownException unknownException) {
-                        System.out.println(name + " : " + urlString
-                                + " :: unknown exception");
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: unknown exception  ");
-                        errorWriter.flush();
+        for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
+            String name = entry.getKey();
+            String urlString = entry.getValue();
+
+            if (statusCheck == true) {
+                URL url = new URL(urlString);
+                HttpURLConnection httpConnection = (HttpURLConnection) url
+                        .openConnection();
+                httpConnection.setRequestMethod("HEAD");
+                httpConnection.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 Firefox/3.5.2");
+                httpConnection.setConnectTimeout(30000);
+                httpConnection.setReadTimeout(30000);
+
+                int responseCode = 0;
+                try {
+                    InputStream errors = httpConnection.getErrorStream();
+                    if (errors == null) {
+                        responseCode = httpConnection.getResponseCode();
                     }
-
-                    if (responseCode == 200 || responseCode == 301
-                            || responseCode == 302 || responseCode == 406) {
-                        System.out.println(space + name + " :: " + urlString
-                                + " :: OK");
-                        outputWriter.println(space + "* [" + name + "]("
-                                + urlString + ")  ");
-                        outputWriter.flush();
-                    } else {
-                        if (responseCode > 0) {
-                            System.out.println(name + " :: " + urlString
-                                    + " :: " + responseCode);
-                            errorWriter
-                                    .println(space + "* [" + name + "]("
-                                            + urlString + ") :: "
-                                            + responseCode + "  ");
-                            errorWriter.flush();
-                        }
-                    }
+                } catch (ConnectException connectionException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: connection exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: connection exception  ");
+                    errorWriter.flush();
+                } catch (SocketException timeoutException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: socket exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: socket exception  ");
+                    errorWriter.flush();
+                } catch (SocketTimeoutException timeoutException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: timed out");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: timed out  ");
+                    errorWriter.flush();
+                } catch (ProtocolException protocolException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: protocol exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: protocol exception  ");
+                    errorWriter.flush();
+                } catch (UnknownHostException unknownHostException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: unknown host exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: unknown host exception  ");
+                    errorWriter.flush();
+                } catch (UnknownException unknownException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: unknown exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: unknown exception  ");
+                    errorWriter.flush();
                 }
 
-                if (statusCheck == false) {
-                    System.out.println(space + name + " :: " + urlString);
-
+                if (responseCode == 200 || responseCode == 301
+                        || responseCode == 302 || responseCode == 406) {
+                    System.out.println(space + name + " :: " + urlString
+                            + " :: OK");
                     outputWriter.println(space + "* [" + name + "]("
                             + urlString + ")  ");
                     outputWriter.flush();
+                } else {
+                    if (responseCode > 0) {
+                        System.out.println(name + " :: " + urlString + " :: "
+                                + responseCode);
+                        errorWriter.println(space + "* [" + name + "]("
+                                + urlString + ") :: " + responseCode + "  ");
+                        errorWriter.flush();
+                    }
                 }
+            }
+
+            if (statusCheck == false) {
+                System.out.println(space + name + " :: " + urlString);
+
+                outputWriter.println(space + "* [" + name + "](" + urlString
+                        + ")  ");
+                outputWriter.flush();
             }
         }
     }
