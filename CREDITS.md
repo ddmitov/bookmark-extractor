@@ -8,6 +8,7 @@ https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
 
 https://www.mkyong.com/java/how-to-append-content-to-file-in-java/  
 https://www.mkyong.com/maven/create-a-fat-jar-file-maven-assembly-plugin/  
+https://www.mkyong.com/java/how-to-loop-a-map-in-java/  
 
 https://stackoverflow.com/questions/15017163/parser-for-exported-bookmarks-html-file-of-google-chrome-and-mozilla-in-java  
 https://stackoverflow.com/questions/23358824/how-to-access-a-specific-element-from-json-output-with-gson  
@@ -24,3 +25,4 @@ https://stackoverflow.com/questions/14898768/how-to-access-nested-elements-of-js
 http://www.javainterviewpoint.com/read-write-json-using-gson/  
 https://www.javatpoint.com/command-line-argument  
 https://www.tutorialspoint.com/java/io/file_exists.htm  
+http://www.geeksforgeeks.org/sorting-hashmap-according-key-value-java/  

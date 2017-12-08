@@ -117,7 +117,7 @@ public class BookmarkExtractor {
 
                 if (type.equals("folder")) {
                     if (name.equals(targetRootName)) {
-                        parseElement(child, 0);
+                        parseElement(childObject, 0);
                     } else {
                         findRootElement(child);
                     }
@@ -140,7 +140,7 @@ public class BookmarkExtractor {
 
             if (type.equals("folder")) {
                 if (name.equals(targetRootName)) {
-                    parseElement(child, 1);
+                    parseElement(childObject, 1);
                 } else {
                     findRootElement(child);
                 }
@@ -148,42 +148,53 @@ public class BookmarkExtractor {
         }
     }
 
-    public static void parseElement(JsonElement child, int elementLevel)
+    public static void parseElement(JsonObject child, int elementLevel)
             throws IOException {
         JsonArray children = child.getAsJsonObject().getAsJsonArray("children");
 
-        Map<String, String> unsortedMap = new TreeMap<String, String>();
-        Map<String, String> sortedMap = new TreeMap<String, String>();
+        Map<String, String> unsortedUrlMap = new TreeMap<String, String>();
+        Map<String, String> sortedUrlMap = new TreeMap<String, String>();
+
+        Map<String, JsonObject> unsortedFolderMap = new TreeMap<String, JsonObject>();
+        Map<String, JsonObject> sortedFolderMap = new TreeMap<String, JsonObject>();
 
         String space = String.join("", Collections.nCopies(elementLevel, "  "));
 
         for (JsonElement childElement : children) {
             JsonObject targetChildObject = childElement.getAsJsonObject();
+
             String type = targetChildObject.get("type").getAsString();
             String name = targetChildObject.get("name").getAsString();
             String address = "";
 
             if (type.equals("folder")) {
-                System.out.println(space + name);
-
-                outputWriter.println(space + "* " + name + "  ");
-                outputWriter.flush();
-
-                errorWriter.println(space + "* " + name + "  ");
-                errorWriter.flush();
-
-                parseElement(childElement, elementLevel + 1);
+                unsortedFolderMap.put(name, targetChildObject);
             }
 
             if (type.equals("url")) {
                 address = targetChildObject.get("url").getAsString();
-                unsortedMap.put(name, address);
+                unsortedUrlMap.put(name, address);
             }
         }
 
-        sortedMap.putAll(unsortedMap);
+        sortedFolderMap.putAll(unsortedFolderMap);
+        sortedUrlMap.putAll(unsortedUrlMap);
 
-        for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
+        for (Map.Entry<String, JsonObject> entry : sortedFolderMap.entrySet()) {
+            String name = entry.getKey();
+
+            outputWriter.println(space + "* " + name + "  ");
+            outputWriter.flush();
+
+            errorWriter.println(space + "* " + name + "  ");
+            errorWriter.flush();
+
+            System.out.println(space + name);
+
+            parseElement(entry.getValue(), elementLevel + 1);
+        }
+
+        for (Map.Entry<String, String> entry : sortedUrlMap.entrySet()) {
             String name = entry.getKey();
             String urlString = entry.getValue();
 
