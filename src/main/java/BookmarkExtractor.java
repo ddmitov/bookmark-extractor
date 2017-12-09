@@ -26,7 +26,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class BookmarkExtractor {
-    public static String targetRootName = "";
+    public static String targetFolderName = "";
+    public static int matchingFolders = 0;
     public static boolean statusCheck = true;
 
     public static String bookmarksPath;
@@ -41,12 +42,15 @@ public class BookmarkExtractor {
             // Command-line arguments:
             if (args.length == 1 && args[0].matches("--help")) {
                 printHeader();
-                System.out.println("java -jar bookmark-extractor.jar --root=root_folder");
-                System.out.println("java -jar bookmark-extractor.jar --root=\"root folder with spaces\"");
+                System.out
+                        .println("java -jar bookmark-extractor.jar --root=root_folder");
+                System.out
+                        .println("java -jar bookmark-extractor.jar --root=\"root folder with spaces\"");
                 System.out.println("");
                 System.out.println("Arguments:");
                 System.out.println("--help                this help");
-                System.out.println("--root=<node-name>    root node - mandatory argument");
+                System.out
+                        .println("--root=<node-name>    root node - mandatory argument");
                 System.out.println("--no-check            do not check URLs");
                 System.out.println("");
                 System.exit(1);
@@ -59,12 +63,12 @@ public class BookmarkExtractor {
                     }
 
                     if (args[index].contains("--root")) {
-                        targetRootName = args[index].replace("--root=", "");
+                        targetFolderName = args[index].replace("--root=", "");
                     }
                 }
             }
 
-            if (targetRootName.length() == 0) {
+            if (targetFolderName.length() == 0) {
                 printHeader();
                 System.out.println("No root element is specified!");
                 System.exit(1);
@@ -94,10 +98,10 @@ public class BookmarkExtractor {
             outputWriter = new PrintWriter(new FileWriter(outputPath));
             errorWriter = new PrintWriter(new FileWriter(errorsPath));
 
-            outputWriter.println("## " + targetRootName);
+            outputWriter.println("## " + targetFolderName);
             outputWriter.flush();
 
-            errorWriter.println("## " + targetRootName);
+            errorWriter.println("## " + targetFolderName);
             errorWriter.flush();
 
             // Bookmarks JSON parsing:
@@ -106,59 +110,77 @@ public class BookmarkExtractor {
 
             Gson gson = new Gson();
             JsonObject bookmarks = gson.fromJson(buffer, JsonObject.class);
+            JsonObject other = bookmarks
+                    .getAsJsonObject("roots").getAsJsonObject("other");
 
-            JsonArray roots = bookmarks.getAsJsonObject("roots")
-                    .getAsJsonObject("other").getAsJsonArray("children");
-
-            for (JsonElement child : roots) {
-                JsonObject childObject = child.getAsJsonObject();
-                String type = childObject.get("type").getAsString();
-                String name = childObject.get("name").getAsString();
-
-                if (type.equals("folder")) {
-                    if (name.equals(targetRootName)) {
-                        parseElement(childObject, 0);
-                    } else {
-                        findRootElement(child);
-                    }
-                }
-            }
+            findTargetJsonNodes("", other);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
 
-    public static void findRootElement(JsonElement element) throws IOException {
+    public static void findTargetJsonNodes(
+            String nodeName, JsonObject node)
+                    throws IOException {
+        JsonArray children = node.getAsJsonArray("children");
 
-        JsonObject elementObject = element.getAsJsonObject();
-        JsonArray roots = elementObject.getAsJsonArray("children");
+        for (JsonElement child : children) {
+            JsonObject childNode = child.getAsJsonObject();
+            String childNodeType = childNode.get("type").getAsString();
+            String childNodeName = childNode.get("name").getAsString();
 
-        for (JsonElement child : roots) {
-            JsonObject childObject = child.getAsJsonObject();
-            String type = childObject.get("type").getAsString();
-            String name = childObject.get("name").getAsString();
+            if (childNodeType.equals("folder")) {
+                if (childNodeName.contains(targetFolderName)) {
+                    matchingFolders++;
+                    if (matchingFolders > 0) {
+                        parseJsonNode(nodeName, childNodeName, childNode, 1);
+                    } else {
+                        parseJsonNode("", "", childNode, 1);
+                    }
+                }
 
-            if (type.equals("folder")) {
-                if (name.equals(targetRootName)) {
-                    parseElement(childObject, 1);
-                } else {
-                    findRootElement(child);
+                if (!childNodeName.contains(targetFolderName)) {
+                    findTargetJsonNodes(childNodeName, childNode);
                 }
             }
         }
     }
 
-    public static void parseElement(JsonObject child, int elementLevel)
-            throws IOException {
-        JsonArray children = child.getAsJsonObject().getAsJsonArray("children");
+    public static void parseJsonNode(
+            String parentNodeName, String nodeName,
+            JsonObject node, int nodeLevel)
+                    throws IOException {
+        String space = String.join("", Collections.nCopies(nodeLevel, "  "));
+
+        if (parentNodeName.length() > 0 && nodeName.length() > 0) {
+            outputWriter.println(space + "* " + parentNodeName + "  ");
+            outputWriter.flush();
+
+            errorWriter.println(space + "* " + parentNodeName + "  ");
+            errorWriter.flush();
+
+            System.out.println(space + parentNodeName);
+
+            space = space.concat("  ");
+
+            outputWriter.println(space + "* " + nodeName + "  ");
+            outputWriter.flush();
+
+            errorWriter.println(space + "* " + nodeName + "  ");
+            errorWriter.flush();
+
+            System.out.println(space + nodeName);
+
+            space = space.concat("  ");
+        }
+
+        JsonArray children = node.getAsJsonObject().getAsJsonArray("children");
 
         Map<String, String> unsortedUrlMap = new TreeMap<String, String>();
         Map<String, String> sortedUrlMap = new TreeMap<String, String>();
 
         Map<String, JsonObject> unsortedFolderMap = new TreeMap<String, JsonObject>();
         Map<String, JsonObject> sortedFolderMap = new TreeMap<String, JsonObject>();
-
-        String space = String.join("", Collections.nCopies(elementLevel, "  "));
 
         for (JsonElement childElement : children) {
             JsonObject targetChildObject = childElement.getAsJsonObject();
@@ -191,7 +213,7 @@ public class BookmarkExtractor {
 
             System.out.println(space + name);
 
-            parseElement(entry.getValue(), elementLevel + 1);
+            parseJsonNode("", "", entry.getValue(), nodeLevel + 1);
         }
 
         for (Map.Entry<String, String> entry : sortedUrlMap.entrySet()) {
