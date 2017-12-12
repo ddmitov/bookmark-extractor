@@ -8,7 +8,16 @@ Support for other operating systems, browsers and output formats may be added in
 Bookmark Extractor is still in an early stage of development.  
 
 ## Dependency
-* [Google Gson](https://github.com/google/gson)  
+* [Google Gson v.2.6.2](https://github.com/google/gson)  
+
+## Compiling Using Maven
+```
+mvn package  
+```
+
+## Compiling Using Eclipse
+``gson-2.6.2.jar`` has to be manually downloaded in the root directory of the project.  
+This version of the Google Gson library could be obtained from [here](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.6.2/gson-2.6.2.jar).
 
 ## Usage
 ```
