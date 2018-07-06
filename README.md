@@ -8,7 +8,7 @@ Support for other operating systems, browsers and output formats may be added in
 Bookmark Extractor is still in an early stage of development.  
 
 ## Dependency
-* [Google Gson v.2.6.2](https://github.com/google/gson)  
+* [Google Gson](https://github.com/google/gson) v.2.6.2  
 
 ## Compiling Using Maven
 ```

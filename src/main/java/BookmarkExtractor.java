@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import org.omg.CORBA.portable.UnknownException;
 
 import com.google.gson.Gson;
@@ -37,7 +39,7 @@ public class BookmarkExtractor {
     public static PrintWriter outputWriter;
     public static PrintWriter errorWriter;
 
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         try {
             // Command-line arguments:
             if (args.length == 1 && args[0].matches("--help")) {
@@ -253,6 +255,12 @@ public class BookmarkExtractor {
                             + " :: timed out");
                     errorWriter.println(space + "* [" + name + "](" + urlString
                             + ") :: timed out  ");
+                    errorWriter.flush();
+                } catch (SSLHandshakeException sslException) {
+                    System.out.println(name + " : " + urlString
+                            + " :: SSL handshake exception");
+                    errorWriter.println(space + "* [" + name + "](" + urlString
+                            + ") :: SSL handshake exception  ");
                     errorWriter.flush();
                 } catch (ProtocolException protocolException) {
                     System.out.println(name + " : " + urlString
