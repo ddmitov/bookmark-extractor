@@ -287,7 +287,7 @@ public class BookmarkExtractor {
 
     public static void printHeader() {
         System.out.println("");
-        System.out.println("Bookmark Extractor version 0.1");
+        System.out.println("Bookmark Extractor version 0.2");
         System.out.println("Selective bookmark extractor and formatter.");
         System.out.println("");
     }
