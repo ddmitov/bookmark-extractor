@@ -13,7 +13,6 @@ import java.net.ProtocolException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,9 +27,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class BookmarkExtractor {
+    public static int connectTimeout = 3000;
+    public static int readTimeout = 5000;
+
+    public static boolean statusCheck = true;
     public static String targetFolderName = "";
     public static int matchingFolders = 0;
-    public static boolean statusCheck = true;
 
     public static String bookmarksPath;
     public static String outputPath;
@@ -44,15 +46,12 @@ public class BookmarkExtractor {
             // Command-line arguments:
             if (args.length == 1 && args[0].matches("--help")) {
                 printHeader();
-                System.out
-                        .println("java -jar bookmark-extractor.jar --root=root_folder");
-                System.out
-                        .println("java -jar bookmark-extractor.jar --root=\"root folder with spaces\"");
+                System.out.println("java -jar bookmark-extractor.jar --root=root_folder");
+                System.out.println("java -jar bookmark-extractor.jar --root=\"root folder with spaces\"");
                 System.out.println("");
                 System.out.println("Arguments:");
                 System.out.println("--help                this help");
-                System.out
-                        .println("--root=<node-name>    root node - mandatory argument");
+                System.out.println("--root=<node-name>    root node - mandatory argument");
                 System.out.println("--no-check            do not check URLs");
                 System.out.println("");
                 System.exit(1);
@@ -229,8 +228,8 @@ public class BookmarkExtractor {
                 httpConnection.setRequestMethod("HEAD");
                 httpConnection.setRequestProperty("User-Agent",
                         "Mozilla/5.0 Firefox/3.5.2");
-                httpConnection.setConnectTimeout(30000);
-                httpConnection.setReadTimeout(30000);
+                httpConnection.setConnectTimeout(connectTimeout);
+                httpConnection.setReadTimeout(readTimeout);
 
                 int responseCode = 0;
                 try {
@@ -267,12 +266,6 @@ public class BookmarkExtractor {
                             + " :: protocol exception");
                     errorWriter.println(space + "* [" + name + "](" + urlString
                             + ") :: protocol exception  ");
-                    errorWriter.flush();
-                } catch (UnknownHostException unknownHostException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: unknown host exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: unknown host exception  ");
                     errorWriter.flush();
                 } catch (UnknownException unknownException) {
                     System.out.println(name + " : " + urlString

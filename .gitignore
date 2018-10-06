@@ -2,7 +2,7 @@ archive
 bin
 target
 
-gson*.jar
+*.jar
 
 gdrive
 upgit
