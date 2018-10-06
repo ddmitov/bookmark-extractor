@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -13,6 +12,7 @@ import java.net.ProtocolException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,7 +27,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class BookmarkExtractor {
-    public static int connectTimeout = 3000;
+    public static int connectTimeout = 5000;
     public static int readTimeout = 5000;
 
     public static boolean statusCheck = true;
@@ -76,12 +76,8 @@ public class BookmarkExtractor {
             }
 
             // Bookmarks path:
-            final String homeDirectory = System.getProperty("user.home");
-            final String fileSeparator = System.getProperty("file.separator");
-            final String linuxConfigDir = ".config";
-
-            bookmarksPath = homeDirectory + fileSeparator + linuxConfigDir
-                    + fileSeparator + "chromium/Default/Bookmarks";
+            bookmarksPath = System.getProperty("user.home")
+                    + "/.config/chromium/Default/Bookmarks";
 
             File bookmarksFile = new File(bookmarksPath);
             if (!bookmarksFile.exists()) {
@@ -90,11 +86,14 @@ public class BookmarkExtractor {
                 System.exit(1);
             }
 
+            System.out.println("Bookmark Extractor is working.");
+            System.out.println("Only problematic adresses are going to be displayed.");
+            System.out.println("");
+
             // Output files:
             final String currentDirectory = System.getProperty("user.dir");
-            outputPath = currentDirectory + fileSeparator + "bookmarks.md";
-            errorsPath = currentDirectory + fileSeparator
-                    + "bookmarks-with-errors.md";
+            outputPath = currentDirectory + "/bookmarks.md";
+            errorsPath = currentDirectory + "/bookmarks-with-errors.txt";
 
             outputWriter = new PrintWriter(new FileWriter(outputPath));
             errorWriter = new PrintWriter(new FileWriter(errorsPath));
@@ -102,12 +101,9 @@ public class BookmarkExtractor {
             outputWriter.println("## " + targetFolderName);
             outputWriter.flush();
 
-            errorWriter.println("## " + targetFolderName);
-            errorWriter.flush();
-
             // Bookmarks JSON parsing:
-            BufferedReader buffer = new BufferedReader(new FileReader(
-                    bookmarksPath));
+            BufferedReader buffer =
+                    new BufferedReader(new FileReader(bookmarksPath));
 
             Gson gson = new Gson();
             JsonObject bookmarks = gson.fromJson(buffer, JsonObject.class);
@@ -118,6 +114,14 @@ public class BookmarkExtractor {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+
+        outputWriter.println("");
+        outputWriter.println("Created using [Bookmark Extractor](https://github.com/ddmitov/bookmark-extractor)");
+        outputWriter.println("");
+        outputWriter.flush();
+
+        System.out.println("");
+        System.out.println("Bookmark Extractor ended its job successfully!");
     }
 
     public static void findTargetJsonNodes(
@@ -157,22 +161,10 @@ public class BookmarkExtractor {
             outputWriter.println(space + "* " + parentNodeName + "  ");
             outputWriter.flush();
 
-            errorWriter.println(space + "* " + parentNodeName + "  ");
-            errorWriter.flush();
-
-            System.out.println(space + parentNodeName);
-
             space = space.concat("  ");
 
             outputWriter.println(space + "* " + nodeName + "  ");
             outputWriter.flush();
-
-            errorWriter.println(space + "* " + nodeName + "  ");
-            errorWriter.flush();
-
-            System.out.println(space + nodeName);
-
-            space = space.concat("  ");
         }
 
         JsonArray children = node.getAsJsonObject().getAsJsonArray("children");
@@ -180,8 +172,10 @@ public class BookmarkExtractor {
         Map<String, String> unsortedUrlMap = new TreeMap<String, String>();
         Map<String, String> sortedUrlMap = new TreeMap<String, String>();
 
-        Map<String, JsonObject> unsortedFolderMap = new TreeMap<String, JsonObject>();
-        Map<String, JsonObject> sortedFolderMap = new TreeMap<String, JsonObject>();
+        Map<String, JsonObject> unsortedFolderMap =
+                new TreeMap<String, JsonObject>();
+        Map<String, JsonObject> sortedFolderMap =
+                new TreeMap<String, JsonObject>();
 
         for (JsonElement childElement : children) {
             JsonObject targetChildObject = childElement.getAsJsonObject();
@@ -209,11 +203,6 @@ public class BookmarkExtractor {
             outputWriter.println(space + "* " + name + "  ");
             outputWriter.flush();
 
-            errorWriter.println(space + "* " + name + "  ");
-            errorWriter.flush();
-
-            System.out.println(space + name);
-
             parseJsonNode("", "", entry.getValue(), nodeLevel + 1);
         }
 
@@ -233,61 +222,54 @@ public class BookmarkExtractor {
 
                 int responseCode = 0;
                 try {
-                    InputStream errors = httpConnection.getErrorStream();
-                    if (errors == null) {
-                        responseCode = httpConnection.getResponseCode();
-                    }
+                    responseCode = httpConnection.getResponseCode();
                 } catch (ConnectException connectionException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: connection exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: connection exception  ");
+                    System.out.println(urlString + " :: connection exception");
+
+                    errorWriter.println(urlString + " :: connection exception");
                     errorWriter.flush();
                 } catch (SocketException timeoutException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: socket exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: socket exception  ");
+                    System.out.println(urlString + " :: socket exception");
+
+                    errorWriter.println(urlString + " :: socket exception");
                     errorWriter.flush();
                 } catch (SocketTimeoutException timeoutException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: timed out");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: timed out  ");
+                    System.out.println(urlString + " :: socket timeout");
+
+                    errorWriter.println(urlString + " :: socket timeout");
                     errorWriter.flush();
                 } catch (SSLHandshakeException sslException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: SSL handshake exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: SSL handshake exception  ");
+                    System.out.println(urlString + " :: SSL handshake exception");
+
+                    errorWriter.println(urlString + " :: SSL handshake exception");
                     errorWriter.flush();
                 } catch (ProtocolException protocolException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: protocol exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: protocol exception  ");
+                    System.out.println(urlString + " :: protocol exception");
+
+                    errorWriter.println(urlString + " :: protocol exception");
+                    errorWriter.flush();
+                } catch (UnknownHostException unknownHostException) {
+                    System.out.println(urlString + " :: unknown host exception");
+
+                    errorWriter.println(urlString + " :: unknown host exception");
                     errorWriter.flush();
                 } catch (UnknownException unknownException) {
-                    System.out.println(name + " : " + urlString
-                            + " :: unknown exception");
-                    errorWriter.println(space + "* [" + name + "](" + urlString
-                            + ") :: unknown exception  ");
+                    System.out.println(urlString + " :: unknown exception");
+
+                    errorWriter.println(urlString + " :: unknown exception");
                     errorWriter.flush();
                 }
 
                 if (responseCode == 200 || responseCode == 301
                         || responseCode == 302 || responseCode == 406) {
-                    System.out.println(space + name + " :: " + urlString
-                            + " :: OK");
                     outputWriter.println(space + "* [" + name + "]("
                             + urlString + ")  ");
                     outputWriter.flush();
                 } else {
                     if (responseCode > 0) {
-                        System.out.println(name + " :: " + urlString + " :: "
-                                + responseCode);
-                        errorWriter.println(space + "* [" + name + "]("
-                                + urlString + ") :: " + responseCode + "  ");
+                        System.out.println(urlString + " :: " + responseCode);
+
+                        errorWriter.println(urlString + " :: " + responseCode);
                         errorWriter.flush();
                     }
                 }

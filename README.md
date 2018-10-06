@@ -3,7 +3,7 @@ Bookmark Extractor
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE.md)
 
 Bookmark Extractor is my personal selective bookmark extractor and formatter.  
-Chromium on Linux as an input source and Markdown as an output format are currently supported.
+Chromium on Linux as an input source and Markdown as an output format are supported.
 
 ## Dependency
 * [Google Gson](https://github.com/google/gson) v.2.6.2  
