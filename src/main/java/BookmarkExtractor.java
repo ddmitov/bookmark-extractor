@@ -212,11 +212,13 @@ public class BookmarkExtractor {
 
             if (statusCheck == true) {
                 URL url = new URL(urlString);
-                HttpURLConnection httpConnection = (HttpURLConnection) url
-                        .openConnection();
+                HttpURLConnection httpConnection =
+                        (HttpURLConnection) url.openConnection();
                 httpConnection.setRequestMethod("HEAD");
-                httpConnection.setRequestProperty("User-Agent",
-                        "Mozilla/5.0 Firefox/3.5.2");
+                httpConnection.setRequestProperty(
+                        "User-Agent",
+                        "Mozilla/5.0 Firefox/3.5.2"
+                );
                 httpConnection.setConnectTimeout(connectTimeout);
                 httpConnection.setReadTimeout(readTimeout);
 
@@ -249,10 +251,6 @@ public class BookmarkExtractor {
                     errorWriter.println(urlString + " :: protocol exception");
                     errorWriter.flush();
                 } catch (UnknownHostException unknownHostException) {
-                    System.out.println(urlString + " :: unknown host exception");
-
-                    errorWriter.println(urlString + " :: unknown host exception");
-                    errorWriter.flush();
                 } catch (UnknownException unknownException) {
                     System.out.println(urlString + " :: unknown exception");
 
