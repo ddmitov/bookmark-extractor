@@ -35,4 +35,4 @@ Arguments:
 
 ## [License](./LICENSE.md)
 Bookmark Extractor is licensed under the GNU General Public License Version 3.  
-Dimitar D. Mitov 2017 - 2018  
+Dimitar D. Mitov 2017 - 2019  
