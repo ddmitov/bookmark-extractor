@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLException;
 
 import org.omg.CORBA.portable.UnknownException;
 
@@ -240,10 +241,13 @@ public class BookmarkExtractor {
 
                     errorWriter.println(urlString + " :: socket timeout");
                     errorWriter.flush();
-                } catch (SSLHandshakeException sslException) {
+                } catch (SSLHandshakeException sslHandshakeException) {
                     System.out.println(urlString + " :: SSL handshake exception");
-
                     errorWriter.println(urlString + " :: SSL handshake exception");
+                    errorWriter.flush();
+                } catch (SSLException sslException) {
+                    System.out.println(urlString + " :: SSL exception");
+                    errorWriter.println(urlString + " :: SSL exception");
                     errorWriter.flush();
                 } catch (ProtocolException protocolException) {
                     System.out.println(urlString + " :: protocol exception");
