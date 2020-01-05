@@ -13,14 +13,11 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLException;
-
-import org.omg.CORBA.portable.UnknownException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -126,8 +123,10 @@ public class BookmarkExtractor {
     }
 
     public static void findTargetJsonNodes(
-            String nodeName, JsonObject node)
+            String nodeName,
+            JsonObject node)
                     throws IOException {
+
         JsonArray children = node.getAsJsonArray("children");
 
         for (JsonElement child : children) {
@@ -153,10 +152,13 @@ public class BookmarkExtractor {
     }
 
     public static void parseJsonNode(
-            String parentNodeName, String nodeName,
-            JsonObject node, int nodeLevel)
+            String parentNodeName,
+            String nodeName,
+            JsonObject node,
+            int nodeLevel)
                     throws IOException {
-        String space = String.join("", Collections.nCopies(nodeLevel, "  "));
+
+    	String space = new String(new char[nodeLevel]).replace("\0", " ");
 
         if (parentNodeName.length() > 0 && nodeName.length() > 0) {
             outputWriter.println(space + "* " + parentNodeName + "  ");
@@ -255,10 +257,9 @@ public class BookmarkExtractor {
                     errorWriter.println(urlString + " :: protocol exception");
                     errorWriter.flush();
                 } catch (UnknownHostException unknownHostException) {
-                } catch (UnknownException unknownException) {
-                    System.out.println(urlString + " :: unknown exception");
+                    System.out.println(urlString + " :: unknown host exception");
 
-                    errorWriter.println(urlString + " :: unknown exception");
+                    errorWriter.println(urlString + " :: unknown host exception");
                     errorWriter.flush();
                 }
 

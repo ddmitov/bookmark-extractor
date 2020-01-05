@@ -3,9 +3,6 @@ Credits
 Amata mea Argeia - gratiam magnam tibi ago!  
 Patientia tua in studiis meis computatoriis auxilium meum maximum!  
 
-https://docs.oracle.com/javase/tutorial/reflect/member/fieldValues.html  
-https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html  
-
 https://www.mkyong.com/java/how-to-append-content-to-file-in-java/  
 https://www.mkyong.com/maven/create-a-fat-jar-file-maven-assembly-plugin/  
 https://www.mkyong.com/java/how-to-loop-a-map-in-java/  
