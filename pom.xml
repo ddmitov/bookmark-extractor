@@ -6,7 +6,7 @@
     <groupId>BookmarkExtractor</groupId>
     <artifactId>BookmarkExtractor</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <name>BookmarkExtractor</name>
     <url>http://maven.apache.org</url>
 
