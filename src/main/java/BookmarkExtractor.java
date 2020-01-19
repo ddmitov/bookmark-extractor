@@ -138,9 +138,9 @@ public class BookmarkExtractor {
                 if (childNodeName.contains(targetFolderName)) {
                     matchingFolders++;
                     if (matchingFolders > 0) {
-                        parseJsonNode(nodeName, childNodeName, childNode, 1);
+                        parseJsonNode(nodeName, childNodeName, childNode, 0);
                     } else {
-                        parseJsonNode("", "", childNode, 1);
+                        parseJsonNode("", "", childNode, 0);
                     }
                 }
 
@@ -158,13 +158,11 @@ public class BookmarkExtractor {
             int nodeLevel)
                     throws IOException {
 
-    	String space = new String(new char[nodeLevel]).replace("\0", " ");
+    	String space = "  ".repeat(nodeLevel);
 
         if (parentNodeName.length() > 0 && nodeName.length() > 0) {
             outputWriter.println(space + "* " + parentNodeName + "  ");
             outputWriter.flush();
-
-            space = space.concat("  ");
 
             outputWriter.println(space + "* " + nodeName + "  ");
             outputWriter.flush();
@@ -203,7 +201,7 @@ public class BookmarkExtractor {
         for (Map.Entry<String, JsonObject> entry : sortedFolderMap.entrySet()) {
             String name = entry.getKey();
 
-            outputWriter.println(space + "* " + name + "  ");
+            outputWriter.println(space + "  * " + name + "  ");
             outputWriter.flush();
 
             parseJsonNode("", "", entry.getValue(), nodeLevel + 1);
@@ -265,7 +263,7 @@ public class BookmarkExtractor {
 
                 if (responseCode == 200 || responseCode == 301
                         || responseCode == 302 || responseCode == 406) {
-                    outputWriter.println(space + "* [" + name + "]("
+                    outputWriter.println(space + "  * [" + name + "]("
                             + urlString + ")  ");
                     outputWriter.flush();
                 } else {
