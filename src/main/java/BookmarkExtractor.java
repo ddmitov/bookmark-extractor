@@ -243,10 +243,12 @@ public class BookmarkExtractor {
                     errorWriter.flush();
                 } catch (SSLHandshakeException sslHandshakeException) {
                     System.out.println(urlString + " :: SSL handshake exception");
+
                     errorWriter.println(urlString + " :: SSL handshake exception");
                     errorWriter.flush();
                 } catch (SSLException sslException) {
                     System.out.println(urlString + " :: SSL exception");
+
                     errorWriter.println(urlString + " :: SSL exception");
                     errorWriter.flush();
                 } catch (ProtocolException protocolException) {
@@ -263,8 +265,7 @@ public class BookmarkExtractor {
 
                 if (responseCode == 200 || responseCode == 301
                         || responseCode == 302 || responseCode == 406) {
-                    outputWriter.println(space + "  * [" + name + "]("
-                            + urlString + ")  ");
+                    outputWriter.println(space + "  * [" + name + "](" + urlString + ")  ");
                     outputWriter.flush();
                 } else {
                     if (responseCode > 0) {
@@ -277,10 +278,7 @@ public class BookmarkExtractor {
             }
 
             if (statusCheck == false) {
-                System.out.println(space + name + " :: " + urlString);
-
-                outputWriter.println(space + "* [" + name + "](" + urlString
-                        + ")  ");
+            	outputWriter.println(space + "  * [" + name + "](" + urlString + ")  ");
                 outputWriter.flush();
             }
         }
