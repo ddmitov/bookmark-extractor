@@ -20,7 +20,7 @@ This version of the Google Gson library could be obtained from [here](https://re
 
 ## Usage
 ```
-Bookmark Extractor version 0.2.4  
+Bookmark Extractor version 0.2.5  
 Selective bookmark extractor and formatter.  
 
 java -jar bookmark-extractor.jar --root=root_folder  
