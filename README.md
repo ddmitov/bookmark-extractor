@@ -3,7 +3,7 @@ Bookmark Extractor
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE.md)
 
 Bookmark Extractor is my personal selective bookmark extractor and formatter.  
-Bookmarks of Chromium for Linux and Chrome for Windows are supported as input source.  
+Bookmarks of Chromium for Linux are the only supported input source.  
 Markdown is the only supported output format.  
 
 ## Dependency
@@ -20,7 +20,7 @@ This version of the Google Gson library could be obtained from [here](https://re
 
 ## Usage
 ```
-Bookmark Extractor version 0.2.5  
+Bookmark Extractor version 0.2.6  
 Selective bookmark extractor and formatter.  
 
 java -jar bookmark-extractor.jar --root=root_folder  

@@ -7,7 +7,7 @@
     <groupId>BookmarkExtractor</groupId>
     <artifactId>BookmarkExtractor</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.5</version>
+    <version>0.2.6</version>
     <name>BookmarkExtractor</name>
 
     <properties>

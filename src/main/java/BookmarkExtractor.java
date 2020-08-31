@@ -74,20 +74,8 @@ public class BookmarkExtractor {
             }
 
             // Bookmarks path:
-            String operatingSystem = System.getProperty("os.name").toLowerCase();
-            
-            bookmarksPath = "";
-
-            if (operatingSystem.indexOf("nux") >= 0) {
-                bookmarksPath = System.getProperty("user.home") +
-                        "/.config/chromium/Default/Bookmarks";
-            }
-
-            if (operatingSystem.indexOf("win") >= 0) {
-                bookmarksPath = System.getProperty("user.home") +
-                        "\\AppData\\Local" +
-                        "\\Google\\Chrome\\User Data\\Default\\Bookmarks";
-            }
+            bookmarksPath = System.getProperty("user.home") +
+                "/.config/chromium/Default/Bookmarks";
 
             File bookmarksFile = new File(bookmarksPath);
             if (!bookmarksFile.exists()) {
@@ -298,7 +286,7 @@ public class BookmarkExtractor {
 
     public static void printHeader() {
         System.out.println("");
-        System.out.println("Bookmark Extractor version 0.2.5");
+        System.out.println("Bookmark Extractor version 0.2.6");
         System.out.println("Selective bookmark extractor and formatter.");
         System.out.println("");
     }
